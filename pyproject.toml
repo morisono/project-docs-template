@@ -1,0 +1,144 @@
+[project]
+name = "project-wiki-template"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12, <=3.13"
+dependencies = [
+    "openai==1.86.0",
+    "langdetect>=1.0.9",  # Language detection library
+    "googletrans>=4.0.0rc1",  # Google Translate API
+    "python-docx>=1.1.0",  # DOCX file handling
+    "PyPDF2>=3.0.1",  # PDF file handling
+    "aiofiles>=24.1.0",  # Async file operations
+    "aiohttp>=3.10.0",  # Async HTTP client
+    "tqdm>=4.66.0",  # Progress bars
+    "loguru>=0.7.0",  # Logging
+    "pydantic>=2.0.0",  # Data validation
+    "pydantic-settings>=2.0.0",  # Settings management
+    "click>=8.1.7",  # CLI framework
+    "rich>=13.0.0",  # Rich console output
+    "tenacity>=8.2.0",  # Retry functionality
+]
+
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url  = "https://pypi.org/simple"
+extra-index-url = ["https://download.pytorch.org/whl/cu124"]
+
+[dependencies]
+torch = { version = "==2.7.0", index = "pytorch-cu124" }
+torchvision = { version = "^0.17.0+cu124", index = "pytorch-cu124" }
+
+dev = [
+    "pytest>=8.0.0",  # Testing framework ✔️
+    "ruff>=0.6.0",  # Linter and formatter ✔️
+    "mypy>=1.8.0",  # Static type checker ✔️
+    "pytest-cov>=4.0.0",  # Coverage testing ✔️
+    "pytest-asyncio>=0.23.0",  # Async testing support ✔️
+    "pytest-mock>=3.12.0",  # Mocking for tests ✔️
+    "black>=24.0.0",  # Code formatter ✔️
+    "isort>=5.13.0",  # Import sorting ✔️
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+select = ["E", "F"]
+ignore = ["E501"]
+
+[tool.ruff.lint]
+select = [
+    "D200",  # fits-on-one-line One-line docstring should fit on one line ✔️ 🛠️
+    "D201",  # no-blank-line-before-function No blank lines allowed before function docstring ✔️ 🛠️
+    "D202",  # no-blank-line-after-function No blank lines allowed after function docstring ✔️ 🛠️
+    "D204",  # one-blank-line-after-class 1 blank line required after class docstring ✔️ 🛠️
+    "D205",  # blank-line-after-summary 1 blank line required between summary line and description ✔️ 🛠️
+    "E",     # pycodestyle errors ✔️ 🛠️
+    "F",     # pyflakes errors ✔️ 🛠️
+    "W",     # pycodestyle warnings ✔️ 🛠️
+    "I",     # isort import sorting ✔️ 🛠️
+    "N",     # pep8-naming naming conventions ✔️ 🛠️
+    "UP",    # pyupgrade Python upgrade suggestions ✔️ 🛠️
+    "B",     # flake8-bugbear bug and design problems ✔️ 🛠️
+    "A",     # flake8-builtins builtin shadowing ✔️ 🛠️
+    "C4",    # flake8-comprehensions comprehension improvements ✔️ 🛠️
+    "T20",   # flake8-print print statement checks ✔️ 🛠️
+    "SIM",   # flake8-simplify code simplification ✔️ 🛠️
+]
+
+ignore = [
+    "E501",  # line-too-long Line too long - handled by formatter ✔️
+    "D100",  # undocumented-public-module Missing docstring in public module ✔️
+    "D104",  # undocumented-public-package Missing docstring in public package ✔️
+]
+
+[tool.ruff.format]
+quote-style = "double"  # Use double quotes for strings
+indent-style = "space"  # Use spaces for indentation
+skip-magic-trailing-comma = false  # Respect trailing commas
+line-ending = "auto"  # Detect line endings automatically
+
+[tool.mypy]
+python_version = "3.12"  # Target Python version for type checking
+warn_return_any = true  # Warn when returning Any from function
+warn_unused_configs = true  # Warn about unused mypy configuration
+disallow_untyped_defs = true  # Require type annotations for all functions
+disallow_incomplete_defs = true  # Require complete type annotations
+check_untyped_defs = true  # Type check unannotated functions
+disallow_untyped_decorators = true  # Require type annotations for decorators
+no_implicit_optional = true  # Don't assume Optional for default None values
+warn_redundant_casts = true  # Warn about redundant type casts
+warn_unused_ignores = true  # Warn about unused type: ignore comments
+warn_no_return = true  # Warn about functions that don't return
+warn_unreachable = true  # Warn about unreachable code
+strict_equality = true  # Use strict equality checks
+show_error_codes = true  # Show error codes in output
+
+[tool.pytest.ini_options]
+minversion = "8.0"  # Minimum pytest version required
+addopts = [
+    "--strict-markers",  # Treat unregistered markers as errors
+    "--strict-config",   # Treat config issues as errors
+    "--verbose",         # Verbose output
+    "--tb=short",       # Short traceback format
+    "--cov=src",        # Coverage for src directory
+    "--cov-report=term-missing",  # Show missing lines in coverage
+    "--cov-report=html",          # Generate HTML coverage report
+    "--cov-report=xml",           # Generate XML coverage report
+]
+testpaths = ["tests"]  # Directory containing tests
+python_files = ["test_*.py", "*_test.py"]  # Test file patterns
+python_classes = ["Test*"]  # Test class patterns
+python_functions = ["test_*"]  # Test function patterns
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "api: marks tests that require API access",
+]
+
+[tool.coverage.run]
+source = ["src"]  # Source directory for coverage
+omit = [
+    "*/tests/*",     # Exclude test files
+    "*/migrations/*", # Exclude database migrations
+    "*/__pycache__/*", # Exclude Python cache
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",    # Lines marked with pragma: no cover
+    "def __repr__",        # Representation methods
+    "if self.debug:",      # Debug-only code
+    "if settings.DEBUG",   # Django debug code
+    "raise AssertionError", # Assertion errors
+    "raise NotImplementedError", # Not implemented methods
+    "if 0:",              # Dead code
+    "if __name__ == .__main__.:", # Main blocks
+    "class .*\\bProtocol\\):", # Protocol classes
+    "@(abc\\.)?abstractmethod", # Abstract methods
+]
