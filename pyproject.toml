@@ -49,6 +49,13 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/github_gen"]
 
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "pytest-asyncio>=1.0.0",
+    "pytest-mock>=3.14.1",
+]
+
 [tool.ruff]
 line-length = 100  # Maximum line length for code formatting
 target-version = "py312"  # Target Python version for compatibility
@@ -92,6 +99,7 @@ namespace_packages = true  # Support namespace packages
 
 [tool.pytest.ini_options]
 minversion = "8.0"  # Minimum pytest version required
+<<<<<<< HEAD
 addopts = [
     "--strict-markers",  # Treat unknown markers as errors
     "--strict-config",   # Treat config errors as errors
@@ -103,6 +111,13 @@ addopts = [
     "--cov-report=html",  # Generate HTML coverage report
 ]
 testpaths = ["tests"]  # Directory containing tests
+=======
+testpaths = ["tests"]  # Directory containing tests
+python_files = ["test_*.py", "*_test.py"]  # Test file patterns
+python_classes = ["Test*"]  # Test class patterns
+python_functions = ["test_*"]  # Test function patterns
+asyncio_mode = "auto"  # Automatically handle async tests
+>>>>>>> refs/remotes/origin/main
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
