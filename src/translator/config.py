@@ -148,6 +148,42 @@ class LanguageMapping(BaseModel):
         "th": "th",
     }
 
+    MYMEMORY_CODES: dict[str, str] = {
+        "en": "en",
+        "ja": "ja",
+        "ko": "ko",
+        "zh": "zh",
+        "zh-tw": "zh-tw",
+        "vi": "vi",
+        "es": "es",
+        "fr": "fr",
+        "de": "de",
+        "it": "it",
+        "pt": "pt",
+        "ru": "ru",
+        "ar": "ar",
+        "hi": "hi",
+        "th": "th",
+    }
+
+    LIBRETRANSLATE_CODES: dict[str, str] = {
+        "en": "en",
+        "ja": "ja",
+        "ko": "ko",
+        "zh": "zh",
+        "zh-tw": "zh",
+        "vi": "vi",
+        "es": "es",
+        "fr": "fr",
+        "de": "de",
+        "it": "it",
+        "pt": "pt",
+        "ru": "ru",
+        "ar": "ar",
+        "hi": "hi",
+        "th": "th",
+    }
+
 
 def get_config() -> TranslationConfig:
     """Get the global configuration instance."""

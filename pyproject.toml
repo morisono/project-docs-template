@@ -46,6 +46,13 @@ dev = [
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "pytest-asyncio>=1.0.0",
+    "pytest-mock>=3.14.1",
+]
+
 [tool.ruff]
 select = ["E", "F"]
 ignore = ["E501"]
@@ -100,20 +107,11 @@ show_error_codes = true  # Show error codes in output
 
 [tool.pytest.ini_options]
 minversion = "8.0"  # Minimum pytest version required
-addopts = [
-    "--strict-markers",  # Treat unregistered markers as errors
-    "--strict-config",   # Treat config issues as errors
-    "--verbose",         # Verbose output
-    "--tb=short",       # Short traceback format
-    "--cov=src",        # Coverage for src directory
-    "--cov-report=term-missing",  # Show missing lines in coverage
-    "--cov-report=html",          # Generate HTML coverage report
-    "--cov-report=xml",           # Generate XML coverage report
-]
 testpaths = ["tests"]  # Directory containing tests
 python_files = ["test_*.py", "*_test.py"]  # Test file patterns
 python_classes = ["Test*"]  # Test class patterns
 python_functions = ["test_*"]  # Test function patterns
+asyncio_mode = "auto"  # Automatically handle async tests
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
