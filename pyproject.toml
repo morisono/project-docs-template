@@ -30,8 +30,10 @@ dependencies = [
 ]
 
 [[tool.uv.index]]
-index-url       = "https://test.pypi.org/simple"
-extra-index-url = ["https://pypi.org/simple"]
+url = "https://pypi.org/simple"
+
+[[tool.uv.index]]
+url = "https://test.pypi.org/simple"
 default = true
 
 
@@ -49,7 +51,7 @@ dev = [
 dtra = "translator.cli:cli"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
