@@ -181,14 +181,27 @@ class GoogleTranslationService(TranslationService):
 
             # Run the synchronous translation in an executor to avoid blocking
             loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(
-                None,
-                lambda: self.translator.translate(
-                    text, dest=target_code, src=source_code
-                ),
-            )
 
-            if result and result.text:
+            def _translate():
+                """Synchronous translation function."""
+                try:
+                    result = self.translator.translate(
+                        text, dest=target_code, src=source_code
+                    )
+                    # Check if result is a coroutine (shouldn't be with googletrans)
+                    if hasattr(result, "__await__"):
+                        logger.error(
+                            "Got coroutine from googletrans - version compatibility issue"
+                        )
+                        return None
+                    return result
+                except Exception as e:
+                    logger.error(f"Error in synchronous translation: {e}")
+                    return None
+
+            result = await loop.run_in_executor(None, _translate)
+
+            if result and hasattr(result, "text") and result.text:
                 return result.text.strip()
 
             logger.error("Empty response from Google Translate service")
@@ -196,6 +209,195 @@ class GoogleTranslationService(TranslationService):
 
         except Exception as e:
             logger.error(f"Error in Google translation: {e}")
+            return None
+
+
+class MyMemoryTranslationService(TranslationService):
+    """MyMemory translation service implementation (free API)."""
+
+    def __init__(self) -> None:
+        """Initialize the MyMemory translation service."""
+        self.base_url = "https://api.mymemory.translated.net/get"
+        self.language_mapping = get_language_mapping()
+
+    def is_available(self) -> bool:
+        """Check if the service is available."""
+        return True  # MyMemory doesn't require API keys
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=8),
+        reraise=True,
+    )
+    async def translate(
+        self, text: str, target_language: str, source_language: str | None = None
+    ) -> str | None:
+        """Translate text using MyMemory API.
+
+        Args:
+            text: Text to translate
+            target_language: Target language code
+            source_language: Source language code (optional)
+
+        Returns:
+            Translated text or None if failed
+        """
+        try:
+            import aiohttp
+
+            # Map language codes
+            target_code = self.language_mapping.MYMEMORY_CODES.get(
+                target_language, target_language
+            )
+            source_code = (
+                self.language_mapping.MYMEMORY_CODES.get(
+                    source_language, source_language
+                )
+                if source_language
+                else "auto"
+            )
+
+            # MyMemory expects format like "en|it" for source|target
+            if source_code == "auto":
+                lang_pair = target_code
+            else:
+                lang_pair = f"{source_code}|{target_code}"
+
+            params = {
+                "q": text,
+                "langpair": lang_pair,
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(self.base_url, params=params) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        if (
+                            data.get("responseStatus") == 200
+                            and "responseData" in data
+                            and "translatedText" in data["responseData"]
+                        ):
+                            translated_text = data["responseData"]["translatedText"]
+                            if translated_text and translated_text.strip():
+                                return translated_text.strip()
+
+            logger.error("Failed to get valid response from MyMemory")
+            return None
+
+        except Exception as e:
+            logger.error(f"Error in MyMemory translation: {e}")
+            return None
+
+
+class LibreTranslateService(TranslationService):
+    """LibreTranslate service implementation (free, self-hosted)."""
+
+    def __init__(self, api_url: str = "https://libretranslate.de/translate") -> None:
+        """Initialize the LibreTranslate service.
+
+        Args:
+            api_url: LibreTranslate API URL
+        """
+        self.api_url = api_url
+        self.language_mapping = get_language_mapping()
+
+    def is_available(self) -> bool:
+        """Check if the service is available."""
+        return True  # LibreTranslate public instance doesn't require API keys
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=8),
+        reraise=True,
+    )
+    async def translate(
+        self, text: str, target_language: str, source_language: str | None = None
+    ) -> str | None:
+        """Translate text using LibreTranslate API.
+
+        Args:
+            text: Text to translate
+            target_language: Target language code
+            source_language: Source language code (optional)
+
+        Returns:
+            Translated text or None if failed
+        """
+        try:
+            import aiohttp
+
+            # Map language codes
+            target_code = self.language_mapping.LIBRETRANSLATE_CODES.get(
+                target_language, target_language
+            )
+            source_code = (
+                self.language_mapping.LIBRETRANSLATE_CODES.get(
+                    source_language, source_language
+                )
+                if source_language
+                else "auto"
+            )
+
+            data = {
+                "q": text,
+                "source": source_code,
+                "target": target_code,
+                "format": "text",
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(self.api_url, json=data) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        if "translatedText" in result:
+                            translated_text = result["translatedText"]
+                            if translated_text and translated_text.strip():
+                                return translated_text.strip()
+
+            logger.error("Failed to get valid response from LibreTranslate")
+            return None
+
+        except Exception as e:
+            logger.error(f"Error in LibreTranslate translation: {e}")
+            return None
+
+
+class MockTranslationService(TranslationService):
+    """Mock translation service for testing purposes."""
+
+    def __init__(self) -> None:
+        """Initialize the mock translation service."""
+        self.language_mapping = get_language_mapping()
+
+    def is_available(self) -> bool:
+        """Check if the service is available."""
+        return True
+
+    async def translate(
+        self, text: str, target_language: str, source_language: str | None = None
+    ) -> str | None:
+        """Mock translate text by adding language prefix.
+
+        Args:
+            text: Text to translate
+            target_language: Target language code
+            source_language: Source language code (optional)
+
+        Returns:
+            Mock translated text
+        """
+        try:
+            # Get language name for target
+            target_name = self.language_mapping.LANGUAGE_NAMES.get(
+                target_language, target_language
+            )
+
+            # Simple mock translation: add language prefix
+            # mock_translation = f"[{target_name.upper()} TRANSLATION]\n\n{text}" # noqa
+            mock_translation = ""
+            return mock_translation
+        except Exception as e:
+            logger.error(f"Error in mock translation: {e}")
             return None
 
 
@@ -237,6 +439,24 @@ class TranslationManager:
         if google_service.is_available():
             self.services.append(google_service)
             logger.info("Added Google Translate service")
+
+        # Add MyMemory translation service
+        mymemory_service = MyMemoryTranslationService()
+        if mymemory_service.is_available():
+            self.services.append(mymemory_service)
+            logger.info("Added MyMemory translation service")
+
+        # Add LibreTranslate service
+        libre_service = LibreTranslateService()
+        if libre_service.is_available():
+            self.services.append(libre_service)
+            logger.info("Added LibreTranslate service")
+
+        # Add Mock translation service
+        mock_service = MockTranslationService()
+        if mock_service.is_available():
+            self.services.append(mock_service)
+            logger.info("Added Mock translation service")
 
         if not self.services:
             logger.warning("No translation services configured!")
