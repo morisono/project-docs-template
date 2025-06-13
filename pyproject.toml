@@ -1,5 +1,5 @@
 [project]
-name = "project-wiki-template"
+name = "dtra"
 version = "0.1.0"
 description = ""
 readme = "README.md"
@@ -40,14 +40,14 @@ dev = [
 ]
 
 [project.scripts]
-github-gen = "github_gen.cli:main"
+dtra = "translator.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/github_gen"]
+packages = ["src/translator"]
 
 [dependency-groups]
 dev = [
@@ -99,25 +99,11 @@ namespace_packages = true  # Support namespace packages
 
 [tool.pytest.ini_options]
 minversion = "8.0"  # Minimum pytest version required
-<<<<<<< HEAD
-addopts = [
-    "--strict-markers",  # Treat unknown markers as errors
-    "--strict-config",   # Treat config errors as errors
-    "--verbose",         # Increase verbosity
-    "--tb=short",        # Short traceback format
-    "--cov=src/github_gen",  # Coverage for main package
-    "--cov-report=term-missing",  # Show missing lines in coverage
-    "--cov-report=xml",   # Generate XML coverage report
-    "--cov-report=html",  # Generate HTML coverage report
-]
-testpaths = ["tests"]  # Directory containing tests
-=======
 testpaths = ["tests"]  # Directory containing tests
 python_files = ["test_*.py", "*_test.py"]  # Test file patterns
 python_classes = ["Test*"]  # Test class patterns
 python_functions = ["test_*"]  # Test function patterns
 asyncio_mode = "auto"  # Automatically handle async tests
->>>>>>> refs/remotes/origin/main
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
