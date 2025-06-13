@@ -2,7 +2,7 @@
 name = "dtra"
 version = "0.1.0"
 description = ""
-readme = "README.md"
+readme = "system_docs/IMPLEMENTATION_SUMMARY.md"
 requires-python = ">=3.12"
 dependencies = [
     "aiofiles>=24.1.0",
@@ -29,6 +29,12 @@ dependencies = [
     "tqdm>=4.66.0",
 ]
 
+[[tool.uv.index]]
+index-url       = "https://test.pypi.org/simple"
+extra-index-url = ["https://pypi.org/simple"]
+default = true
+
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
@@ -40,7 +46,7 @@ dev = [
 ]
 
 [project.scripts]
-dtra = "translator.cli:main"
+dtra = "translator.cli:cli"
 
 [build-system]
 requires = ["hatchling"]
