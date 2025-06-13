@@ -1,6 +1,6 @@
 [project]
 name = "dtra"
-version = "0.2.0"
+version = "0.2.1"
 description = ""
 readme = "system_docs/IMPLEMENTATION_SUMMARY.md"
 requires-python = ">=3.12"
@@ -30,10 +30,14 @@ dependencies = [
 ]
 
 [[tool.uv.index]]
+name = "pypi"
 url = "https://pypi.org/simple"
 
 [[tool.uv.index]]
-url = "https://test.pypi.org/simple"
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
 default = true
 
 
